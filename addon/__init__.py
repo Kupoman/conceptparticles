@@ -60,6 +60,16 @@ class ParticlePropertiesNode(Node, ParticleTreeNode):
 		self.inputs.new('NodeSocketColor', "Color")
 		self.outputs.new('NodeSocketParticleProperties', "System")
 
+# --------------- #
+# Generator Nodes #
+# --------------- #
+
+class RandomScalarGeneratorNode(Node, ParticleTreeNode):
+	'''Generates random scalar values'''
+	bl_label = 'Random Scalar Generator'
+
+	def init(self, context):
+		self.outputs.new('NodeSocketFloat', "Value")
 
 # --------------- #
 # Node Categories #
@@ -79,7 +89,11 @@ node_categories = [
 	ParticleNodeCategory("SYSTEM", "System Nodes", items=[
 		NodeItem("SystemNode"),
 		NodeItem("ParticlePropertiesNode"),
-	])
+	]),
+
+	ParticleNodeCategory("SCALAR_GENERATORS", "Scalar Generators", items=[
+		NodeItem("RandomScalarGeneratorNode"),
+	]),
 ]
 
 
@@ -88,21 +102,35 @@ node_categories = [
 # ------------ #
 
 
+nodes = [
+	SystemNode,
+	ParticlePropertiesNode,
+	RandomScalarGeneratorNode,
+]
+
+
 def register():
-	for i in globals():
-		print(i, i.__class__, issubtype(i, ParticleTreeNode))
 	bpy.utils.register_class(ParticleTree)
 	bpy.utils.register_class(NodeSocketParticleProperties)
-	bpy.utils.register_class(SystemNode)
-	bpy.utils.register_class(ParticlePropertiesNode)
-	nodeitems_utils.register_node_categories("PARTICLE_NODES", node_categories)
+
+	for i in nodes:
+		bpy.utils.register_class(i)
+
+	try:
+		nodeitems_utils.register_node_categories("PARTICLE_NODES", node_categories)
+	except KeyError:
+		nodeitems_utils.unregister_node_categories("PARTICLE_NODES")
+		nodeitems_utils.register_node_categories("PARTICLE_NODES", node_categories)
+
 
 
 def unregister():
 	bpy.utils.unregister_class(ParticleTree)
 	bpy.utils.unregister_class(NodeSocketParticleProperties)
-	bpy.utils.unregister_class(SystemNode)
-	bpy.utils.unregister_class(ParticlePropertiesNode)
+
+	for i in nodes:
+		bpy.utils.unregister_class(i)
+
 	nodeitems_utils.unregister_node_categories("PARTICLE_NODES")
 
 
