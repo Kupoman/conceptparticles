@@ -17,8 +17,8 @@ class SystemNode(Node, ParticleTreeNode):
 	bl_icon = 'NODETREE'
 
 	def init(self, context):
-		self.inputs.new('NodeSocketVector', "Position")
-		self.inputs.new('NodeSocketVector', "Color")
+		self.inputs.new('NodeSocketVectorTranslation', "Position")
+		self.inputs.new('NodeSocketColor', "Color")
 
 import nodeitems_utils
 from nodeitems_utils import NodeCategory, NodeItem
