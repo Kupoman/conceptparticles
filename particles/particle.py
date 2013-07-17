@@ -1,6 +1,6 @@
 from ctypes import *
 
-class PARTICLE(Structure):
+class RPARTICLE(Structure):
 	_fields_ = [
 					("x", c_float),
 					("y", c_float),
