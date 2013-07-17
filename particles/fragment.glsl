@@ -1,7 +1,11 @@
-#version 120
+#version 150
 #extension GL_EXT_gpu_shader4 : enable
 
 uniform sampler2D texture;
+
+flat in vec4 color;
+
+out vec4 frag_color;
 
 void main()
 {
@@ -16,7 +20,7 @@ void main()
 	coord.x += offset * (subuv%subuv_divs);
 	coord.y += offset * (subuv/subuv_divs);
 	
-	vec4 color = texture2D(texture, coord);
+	vec4 text = texture2D(texture, coord);
 	
-	gl_FragColor = color;
+	frag_color = text * color;
 }
