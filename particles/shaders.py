@@ -13,12 +13,12 @@ _shaders = (_fragment, _vertex)
 
 def getProgram():
 	global _program
-	
+
 	if _program != -1:
 		return _program
 
 	_program = glCreateProgram()
-	
+
 	file = inspect.getfile(inspect.currentframe())
 	_dir = os.path.dirname(os.path.abspath(file)) + '/'
 	for shader in _shaders:
@@ -30,12 +30,12 @@ def getProgram():
 			log = glGetShaderInfoLog(obj).decode()
 			if log:
 				print(log)
-				
+
 			glAttachShader(_program, obj)
-	
+
 	glLinkProgram(_program)
 	log = glGetProgramInfoLog(_program).decode()
 	if log:
 		print(log)
-		
+
 	return _program
