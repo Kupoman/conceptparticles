@@ -88,8 +88,14 @@ class System:
 		glBindTexture(GL_TEXTURE_2D, self._texture_id)
 		glUniform1i(self._uniform_loc['texture'], 0)
 		
-		glVertexPointer(3, GL_FLOAT, ctypes.sizeof(RPARTICLE), ctypes.c_void_p(0))
-		glEnableClientState(GL_VERTEX_ARRAY)
+		glEnableVertexAttribArray(0)
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+								ctypes.sizeof(RPARTICLE), ctypes.c_void_p(0))
+		glEnableVertexAttribArray(1)
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, 
+								ctypes.sizeof(RPARTICLE), 
+								ctypes.c_void_p(RPARTICLE.r.offset))
+								
 		glDrawArrays(GL_POINTS, 0, self._last_particle)
 		
 		glUseProgram(0)
