@@ -1,5 +1,6 @@
 from ctypes import *
 
+
 class RPARTICLE(Structure):
 	_fields_ = [
 					("x", c_float),
