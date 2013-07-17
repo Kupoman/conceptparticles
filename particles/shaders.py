@@ -20,21 +20,21 @@ def getProgram():
 	_program = glCreateProgram()
 	
 	file = inspect.getfile(inspect.currentframe())
-	dir = os.path.dirname(os.path.abspath(file)) + '/'
+	_dir = os.path.dirname(os.path.abspath(file)) + '/'
 	for shader in _shaders:
-		with open(dir+shader[0]) as fin:
+		with open(_dir+shader[0]) as fin:
 			source = fin.read()
 			obj = glCreateShader(shader[1])
 			glShaderSource(obj, source)
 			glCompileShader(obj)
-			log = glGetShaderInfoLog(obj)
+			log = glGetShaderInfoLog(obj).decode()
 			if log:
 				print(log)
 				
 			glAttachShader(_program, obj)
 	
 	glLinkProgram(_program)
-	log = glGetProgramInfoLog(_program)
+	log = glGetProgramInfoLog(_program).decode()
 	if log:
 		print(log)
 		
