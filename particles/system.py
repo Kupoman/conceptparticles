@@ -9,6 +9,7 @@ import PIL.Image as pil
 from .particle import RPARTICLE
 from .shaders import getProgram
 from .property import Property
+from .generators import get_generator
 
 
 class System:
@@ -52,6 +53,8 @@ class System:
 	def _init_props(self):
 		self._particle_properties["position"] = \
 			Property("position", "VECTOR", (0, 0, 0))
+		self._particle_properties["position"].generator = \
+			get_generator("MIX3", {"n3":"LINEAR"})
 		self._particle_properties["color"] = \
 			Property("color", "COLOR", (1.0, 1.0, 1.0, 1.0))
 
@@ -59,12 +62,12 @@ class System:
 		for i in range(self._last_particle):
 			particle = self._particles[i]
 
-			value = self._particle_properties['position'].getValue(0)
+			value = self._particle_properties['position'].get_value(0)
 			particle.x = value[0]
 			particle.y = value[1]
 			particle.z = value[2]
 
-			value = self._particle_properties['color'].getValue(0)
+			value = self._particle_properties['color'].get_value(0)
 			particle.r = value[0]
 			particle.g = value[1]
 			particle.b = value[2]
