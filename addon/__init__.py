@@ -13,6 +13,7 @@ bl_info = {
 
 import bpy
 from bpy_types import NodeTree, Node, NodeSocket
+import particles.generators
 
 
 class ParticleTree(NodeTree):
@@ -125,6 +126,28 @@ nodes = [
 def register():
 	bpy.utils.register_class(ParticleTree)
 	bpy.utils.register_class(NodeSocketParticleProperties)
+
+	generated_nodes = []
+
+	for i in [i[0] + i[1:].lower() for i in particles.generators.GENERATORS]:
+		cls = getattr(particles.generators, i)
+		init_str = """def init(self, context):\n"""
+		for inp in cls.__slots__:
+			init_str += """\tself.inputs.new('NodeSocketFloat', "%s")\n""" % inp
+
+		init_str += """\tself.outputs.new('NodeSocketFloat', "Value")\n"""
+		exec(init_str)
+
+		d = {
+			"bl_label": cls.__name__,
+			"init": locals()['init'],
+		}
+		node = type(cls.__name__+"Node", (Node, ParticleTreeNode), d)
+		nodes.append(node)
+		generated_nodes.append(node)
+
+	node_categories.append(ParticleNodeCategory("GEN_GENERATORS", "Generated Generators",\
+		items = [NodeItem(i.__name__) for i in generated_nodes]))
 
 	for i in nodes:
 		bpy.utils.register_class(i)
