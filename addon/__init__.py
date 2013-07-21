@@ -74,16 +74,6 @@ class ParticlePropertiesNode(Node, ParticleTreeNode):
 		self.inputs.new('NodeSocketColor', "Color")
 		self.outputs.new('NodeSocketParticleProperties', "System")
 
-# --------------- #
-# Generator Nodes #
-# --------------- #
-
-class RandomScalarGeneratorNode(Node, ParticleTreeNode):
-	'''Generates random scalar values'''
-	bl_label = 'Random Scalar Generator'
-
-	def init(self, context):
-		self.outputs.new('NodeSocketFloat', "Value")
 
 # --------------- #
 # Node Categories #
@@ -103,11 +93,7 @@ node_categories = [
 	ParticleNodeCategory("SYSTEM", "System Nodes", items=[
 		NodeItem("SystemNode"),
 		NodeItem("ParticlePropertiesNode"),
-	]),
-
-	ParticleNodeCategory("SCALAR_GENERATORS", "Scalar Generators", items=[
-		NodeItem("RandomScalarGeneratorNode"),
-	]),
+	])
 ]
 
 
@@ -119,7 +105,6 @@ node_categories = [
 nodes = [
 	SystemNode,
 	ParticlePropertiesNode,
-	RandomScalarGeneratorNode,
 ]
 
 
@@ -146,7 +131,7 @@ def register():
 		nodes.append(node)
 		generated_nodes.append(node)
 
-	node_categories.append(ParticleNodeCategory("GEN_GENERATORS", "Generated Generators",\
+	node_categories.append(ParticleNodeCategory("GENERATORS", "Generators",\
 		items = [NodeItem(i.__name__) for i in generated_nodes]))
 
 	for i in nodes:
