@@ -1,3 +1,16 @@
+bl_info = {
+    "name": "Concept Particles",
+    "author": "Daniel Stokes, Mitchell Stokes",
+    "version": (0, 0),
+    "blender": (2, 68, 0),
+    "location": "",
+    "description": "BGE Particles",
+    "warning": "",
+    "wiki_url": "",
+    "tracker_url": "",
+    "category": "Game Engine"}
+
+
 import bpy
 from bpy_types import NodeTree, Node, NodeSocket
 
