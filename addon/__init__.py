@@ -19,7 +19,7 @@ import particles.generators
 class ParticleTree(NodeTree):
 	'''A node tree for particles'''
 	bl_label = 'Particle Tree'
-	bl_icon = 'NODETREE'
+	bl_icon = 'PARTICLES'
 
 
 class ParticleTreeNode:
