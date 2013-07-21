@@ -18,13 +18,13 @@ class Property:
 		self._type = type
 		self._bind_location = glGetUniformLocation(getProgram(), name.encode())
 
-	def getValue(self, time):
+	def get_value(self, time):
 		if not self.generator:
 			return self.default
-		return self.generator.getValue(time)
+		return self.generator.get_value(time)
 
-	def bindValue(self, time):
-		value = self.generator.getValue(time)
+	def bind_value(self, time):
+		value = self.generator.get_value(time)
 		if self._type == "VECTOR":
 			glUniform3f(self._bind_location, value[0], value[1], value[2])
 		if self._type == "COLOR":
