@@ -83,7 +83,7 @@ class System:
 		particle = self._particles[self._size-1]
 		data = self._particle_data[self._size-1]
 
-		data.life = 60
+		data.life = self._properties['Life'].get_value(0)
 		data.time = 0
 
 	def _remove_particle(self, index):
