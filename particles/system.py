@@ -23,18 +23,15 @@ class System:
 		self._system_properties = {}
 		self._particle_properties = {}
 		self._texture_path = "sprites/stars_4.png"
-		self._capacity = 100
-		self._particles = (GPUPARTICLE * self._capacity)()
-		self._particle_data = (CPUPARTICLE * self._capacity)()
+		self._capacity = 0
+		self._particles = []
+		self._particle_data = []
 		self._size = 0
 		self._buffer_id = glGenBuffers(1)
 		self._texture_id = glGenTextures(1)
 		self._uniform_loc = {}
 
-		glBindBuffer(GL_ARRAY_BUFFER, self._buffer_id)
-		glBufferData(GL_ARRAY_BUFFER, self._capacity*ctypes.sizeof(GPUPARTICLE),
-						None, GL_DYNAMIC_DRAW)
-		glBindBuffer(GL_ARRAY_BUFFER, 0)
+		self._expand(1000)
 
 		im = pil.open(self._texture_path)
 		try:
@@ -64,7 +61,11 @@ class System:
 			Property("color", "COLOR", (1.0, 1.0, 1.0, 1.0))
 
 	def _add_particle(self):
+		if self._size >= self._capacity:
+			self._expand(self._capacity*2)
+
 		self._size += 1
+
 		particle = self._particles[self._size-1]
 		data = self._particle_data[self._size-1]
 
@@ -85,6 +86,24 @@ class System:
 
 		_struct_copy(self._particles[index], tmp_part)
 		_struct_copy(self._particle_data[index], tmp_data)
+		
+	def _expand(self, new_capacity):
+		new_parts = (GPUPARTICLE * new_capacity)()
+		new_data = (CPUPARTICLE * new_capacity)()
+
+		for i in range(self._size):
+			_struct_copy(new_parts[i], self._particles[i])
+			_struct_copy(new_data[i], self._particle_data[i])
+
+		self._capacity = new_capacity
+
+		self._particles = new_parts
+		self._particle_data = new_data
+
+		glBindBuffer(GL_ARRAY_BUFFER, self._buffer_id)
+		glBufferData(GL_ARRAY_BUFFER, self._capacity*ctypes.sizeof(GPUPARTICLE),
+						None, GL_DYNAMIC_DRAW)
+		glBindBuffer(GL_ARRAY_BUFFER, 0)
 
 	def update(self):
 		self._add_particle()
