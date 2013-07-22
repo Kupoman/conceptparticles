@@ -30,6 +30,7 @@ class System:
 		self._buffer_id = glGenBuffers(1)
 		self._texture_id = glGenTextures(1)
 		self._uniform_loc = {}
+		self._attrib_loc = {}
 
 		self._expand(1000)
 
@@ -53,6 +54,10 @@ class System:
 			glGetUniformLocation(get_program(), b"model_view_mat")
 		self._uniform_loc['projection_mat'] = \
 			glGetUniformLocation(get_program(), b"projection_mat")
+		self._attrib_loc['position'] = \
+			glGetAttribLocation(get_program(), b"position_in")
+		self._attrib_loc['color'] = \
+			glGetAttribLocation(get_program(), b"color_in")
 
 		self._init_props()
 
@@ -144,7 +149,6 @@ class System:
 
 		glUseProgram(get_program())
 
-		glPointSize(5)
 		glEnable(GL_TEXTURE_2D)
 		glEnable(GL_POINT_SPRITE)
 		glEnable(GL_VERTEX_PROGRAM_POINT_SIZE)
@@ -161,10 +165,12 @@ class System:
 							projection)
 
 		glEnableVertexAttribArray(0)
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+		glVertexAttribPointer(self._attrib_loc['position'],
+								3, GL_FLOAT, GL_FALSE, 
 								ctypes.sizeof(GPUPARTICLE), ctypes.c_void_p(0))
 		glEnableVertexAttribArray(1)
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, 
+		glVertexAttribPointer(self._attrib_loc['color'],
+								4, GL_FLOAT, GL_TRUE, 
 								ctypes.sizeof(GPUPARTICLE), 
 								ctypes.c_void_p(GPUPARTICLE.r.offset))
 
