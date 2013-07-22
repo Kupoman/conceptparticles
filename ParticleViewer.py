@@ -10,6 +10,8 @@ HEIGHT = 480
 
 class Global:
 	system = None
+	mvmat = []
+	pmat = []
 
 def draw_background():
 	glMatrixMode(GL_PROJECTION)
@@ -62,7 +64,7 @@ def display():
 	draw_background()
 	draw_axis()
 
-	Global.system.draw()
+	Global.system.draw(Global.mvmat, Global.pmat)
 
 	glutSwapBuffers()
 
@@ -77,6 +79,9 @@ def reshape(w, h):
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity()
 	gluLookAt(7, -6, 7, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
+
+	Global.pmat = glGetFloatv(GL_PROJECTION_MATRIX)
+	Global.mvmat = glGetFloatv(GL_MODELVIEW_MATRIX)
 
 
 if __name__ == '__main__':

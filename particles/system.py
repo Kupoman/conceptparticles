@@ -49,6 +49,10 @@ class System:
 		
 		self._uniform_loc['texture'] = \
 			glGetUniformLocation(get_program(), b"texture")
+		self._uniform_loc['model_view_mat'] = \
+			glGetUniformLocation(get_program(), b"model_view_mat")
+		self._uniform_loc['projection_mat'] = \
+			glGetUniformLocation(get_program(), b"projection_mat")
 
 		self._init_props()
 
@@ -135,7 +139,7 @@ class System:
 						self._size*ctypes.sizeof(GPUPARTICLE),
 						self._particles)
 
-	def draw(self):
+	def draw(self, model_view, projection):
 		self.update()
 
 		glUseProgram(get_program())
@@ -150,6 +154,11 @@ class System:
 		glActiveTexture(GL_TEXTURE0)
 		glBindTexture(GL_TEXTURE_2D, self._texture_id)
 		glUniform1i(self._uniform_loc['texture'], 0)
+
+		glUniformMatrix4fv(self._uniform_loc['model_view_mat'], 1, GL_FALSE,
+							model_view)
+		glUniformMatrix4fv(self._uniform_loc['projection_mat'], 1, GL_FALSE,
+							projection)
 
 		glEnableVertexAttribArray(0)
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
