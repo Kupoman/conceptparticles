@@ -36,6 +36,39 @@ class ParticleTreeNode:
 # ------- #
 
 
+class NodeSocketGeneratorScalar(NodeSocket):
+	'''Node socket type for scalar generators'''
+	bl_label = 'Scalar Generator'
+
+	def draw(self, context, layout, node, text):
+		layout.label(text)
+
+	def draw_color(self, context, node):
+		return (1.0, 0.4, 0.216, 1.0)
+
+
+class NodeSocketGeneratorVector(NodeSocket):
+	'''Node socket type for vector generators'''
+	bl_label = 'Vector Generator'
+
+	def draw(self, context, layout, node, text):
+		layout.label(text)
+
+	def draw_color(self, context, node):
+		return (0.4, 1.0, 0.216, 1.0)
+
+
+class NodeSocketGeneratorColor(NodeSocket):
+	'''Node socket type for color generators'''
+	bl_label = 'Color Generator'
+
+	def draw(self, context, layout, node, text):
+		layout.label(text)
+
+	def draw_color(self, context, node):
+		return (0.4, 0.216, 1.0, 1.0)
+
+
 # ------------ #
 # System Nodes #
 # ------------ #
@@ -48,10 +81,12 @@ class SystemNode(Node, ParticleTreeNode):
 
 	def init(self, context):
 		for i in SYSTEM_PROPERTIES+PARTICLE_PROPERTIES:
-			if i['type'] == 'VECTOR':
-				self.inputs.new('NodeSocketVector', i['name'].title())
+			if i['type'] == 'SCALAR':
+				self.inputs.new('NodeSocketGeneratorScalar', i['name'].title())
+			elif i['type'] == 'VECTOR':
+				self.inputs.new('NodeSocketGeneratorVector', i['name'].title())
 			elif i['type'] == 'COLOR':
-				self.inputs.new('NodeSocketColor', i['name'].title())
+				self.inputs.new('NodeSocketGeneratorColor', i['name'].title())
 			else:
 				print("Unrecognized type for system property:", i['name'])
 
@@ -184,6 +219,13 @@ nodes = [
 ]
 
 
+sockets = [
+	NodeSocketGeneratorScalar,
+	NodeSocketGeneratorVector,
+	NodeSocketGeneratorColor,
+]
+
+
 def register():
 	bpy.utils.register_class(ParticleTree)
 
@@ -209,7 +251,7 @@ def register():
 	node_categories.append(ParticleNodeCategory("GENERATORS", "Generators",\
 		items = [NodeItem(i.__name__) for i in generated_nodes]))
 
-	for i in nodes:
+	for i in nodes+sockets:
 		bpy.utils.register_class(i)
 
 	try:
@@ -226,7 +268,7 @@ def register():
 def unregister():
 	bpy.utils.unregister_class(ParticleTree)
 
-	for i in nodes:
+	for i in nodes+sockets:
 		bpy.utils.unregister_class(i)
 
 	nodeitems_utils.unregister_node_categories("PARTICLE_NODES")
