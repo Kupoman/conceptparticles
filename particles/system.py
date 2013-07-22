@@ -94,6 +94,11 @@ class System:
 		data.life = self._properties['Life'].get_value(0)
 		data.time = 0
 
+		position = self._properties['Position'].get_value(self._time)
+		particle.x = position[0]
+		particle.y = position[1]
+		particle.z = position[2]
+
 	def _remove_particle(self, index):
 		self._size -= 1
 
@@ -160,10 +165,10 @@ class System:
 			if data.time >= data.life:
 				rem_list.append(i)
 
-			value = self._properties['Position'].get_value(data.time)
-			particle.x = value[0]
-			particle.y = value[1]
-			particle.z = value[2]
+			value = self._properties['Velocity'].get_value(data.time)
+			particle.x += value[0]
+			particle.y += value[1]
+			particle.z += value[2]
 
 			value = self._properties['Color'].get_value(data.time)
 			particle.r = value[0]
