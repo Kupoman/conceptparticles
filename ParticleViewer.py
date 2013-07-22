@@ -78,7 +78,8 @@ def reshape(w, h):
 	glViewport(0, 0, WIDTH, HEIGHT)
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
-	glOrtho(-aspect * 5, aspect * 5, -5, 5, 0.5, 20)
+	size = .3
+	glFrustum(-aspect * size, aspect * size, -size, size, 0.5, 20)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity()
