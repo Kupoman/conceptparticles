@@ -1,5 +1,5 @@
 from .linear import Linear
-from .mix import Mix3
+from .mix import Mix3, Mix4
 
 
 GENERATORS = {
