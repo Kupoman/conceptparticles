@@ -27,6 +27,9 @@ class Constant3(Constant):
 					("value", "VECTOR"),
 				))
 
+	def __init__(self, value=(0, 0, 0)):
+		self.value = value
+
 		
 class Constant4(Constant):
 	out_type = "COLOR"
@@ -34,3 +37,6 @@ class Constant4(Constant):
 	type_map =	OrderedDict((
 					("value", "COLOR"),
 				))
+
+	def __init__(self, value=(0, 0, 0, 0)):
+		self.value = value
