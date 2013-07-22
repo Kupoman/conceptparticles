@@ -227,19 +227,46 @@ def register():
 
 	generated_nodes = []
 
+	socket_types = {
+		'GENERATOR_SCALAR': 'NodeSocketGeneratorScalar',
+		'GENERATOR_VECTOR': 'NodeSocketGeneratorVector',
+		'GENERATOR_COLOR': 'NodeSocketGeneratorColor',
+		}
+
+	property_types = {
+		'SCALAR': (bpy.props.FloatProperty, {}),
+		'VECTOR': (bpy.props.FloatVectorProperty, {'subtype':'XYZ', 'size':3}),
+		'COLOR':  (bpy.props.FloatVectorProperty, {'subtype':'COLOR', 'size':4}),
+		}
+
 	for i in [i[0] + i[1:].lower() for i in particles.generators.GENERATORS]:
 		cls = getattr(particles.generators, i)
-		init_str = """def init(self, context):\n"""
-		for inp in cls.__slots__:
-			init_str += """\tself.inputs.new('NodeSocketFloat', "%s")\n""" % inp
+		d = {"bl_label": cls.__name__}
+		props = []
 
-		init_str += """\tself.outputs.new('NodeSocketFloat', "Value")\n"""
+		# Create init method
+		init_str = """def init(self, context):\n"""
+		for k,v in cls.type_map.items():
+			if v.startswith('GENERATOR'):
+				init_str += """\tself.inputs.new('%s', "%s")\n""" % (socket_types[v], k.title().replace('_', ' '))
+			else:
+				d[k] = property_types[v][0](name=k.title().replace('_', ' '), **property_types[v][1])
+				props.append(k)
+
+		init_str += """\tself.outputs.new('%s', "Value")\n""" % socket_types['GENERATOR_' + cls.out_type]
 		exec(init_str)
 
-		d = {
-			"bl_label": cls.__name__,
-			"init": locals()['init'],
-		}
+		d["init"] = locals()['init']
+
+		# Create draw_buttons method
+		if props:
+			db_str = """def draw_buttons(self, context, layout):\n"""
+			for prop in props:
+				db_str += """\tlayout.prop(self, "%s")\n""" % prop
+
+			exec(db_str)
+			d["draw_buttons"] = locals()['draw_buttons']
+		
 		node = type(cls.__name__+"Node", (Node, ParticleTreeNode), d)
 		nodes.append(node)
 		generated_nodes.append(node)
