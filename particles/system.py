@@ -82,8 +82,6 @@ class System:
 			else:
 				print("Invalid property:", name)
 
-		print(self._properties['Position'].get_value(2))
-
 	def _add_particle(self):
 		if self._size >= self._capacity:
 			self._expand(self._capacity*2)
