@@ -15,6 +15,7 @@ import bpy
 from bpy_types import NodeTree, Node, NodeSocket
 from bpy_extras.io_utils import ExportHelper
 import particles.generators
+import json
 
 
 class ParticleTree(NodeTree):
@@ -103,9 +104,59 @@ node_categories = [
 # --------- #
 
 
+def write_generator(node):
+	return {
+		"type": node.bl_label.upper(),
+	}
+
+
+def write_property(node, prop):
+	ns = node.inputs.get(prop.title())
+
+	if not ns.is_linked:
+		return
+
+	return {
+		"name": prop,
+		"location": node.location[:],
+		"generator": write_generator(ns.links[0].from_node),
+	}
+
+
 def write_node_tree(context, filepath):
-	with open(filepath, 'w') as f:
-		f.write("XXX TODO")
+	nt = context.space_data.node_tree
+
+	systems = [node for node in nt.nodes if node.bl_label == 'System']
+
+	systems_out = []
+
+	for system in systems:
+		ns = system.inputs.get("Particle Properties")
+		if not ns.is_linked:
+			print("Found system with no particle properties, skipping")
+			continue
+
+		part_props = ns.links[0].from_node
+
+		sysd = {
+			"particle_properties": [
+					write_property(part_props, "color"),
+				],
+			"system_properties": [
+					write_property(system, "position"),
+				],
+		}
+
+		systems_out.append(sysd)
+
+
+	out = {
+		"name": nt.name,
+		"systems": systems_out,
+		}
+
+	with open(filepath, "w") as f:
+		json.dump(out, f, indent=4)
 
 
 class ExportNodeTree(bpy.types.Operator, ExportHelper):
