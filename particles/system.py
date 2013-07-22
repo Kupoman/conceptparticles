@@ -34,6 +34,7 @@ class System:
 		self._uniform_loc = {}
 		self._attrib_loc = {}
 		self._add_count = 0
+		self._time = 0
 
 		self._expand(1000)
 
@@ -142,7 +143,9 @@ class System:
 		return system
 
 	def update(self):
-		rate = self._properties['Emit Rate'].get_value(0)
+		self._time += 1
+
+		rate = self._properties['Emit Rate'].get_value(self._time)
 		self._add_count += rate
 		while self._add_count >= 1.0:
 			self._add_particle()
