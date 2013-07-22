@@ -33,6 +33,7 @@ class System:
 		self._texture_id = glGenTextures(1)
 		self._uniform_loc = {}
 		self._attrib_loc = {}
+		self._add_count = 0
 
 		self._expand(1000)
 
@@ -134,7 +135,12 @@ class System:
 		return system
 
 	def update(self):
-		self._add_particle()
+		rate = self._properties['Emit Rate'].get_value(0)
+		self._add_count += rate
+		while self._add_count >= 1.0:
+			self._add_particle()
+			self._add_count -= 1
+			
 		rem_list = []
 		for i in range(self._size):
 			particle = self._particles[i]
