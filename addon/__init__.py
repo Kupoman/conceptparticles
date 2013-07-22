@@ -89,7 +89,7 @@ class SystemNode(Node, ParticleTreeNode):
 		for k,v in PROPERTIES.items():
 			socket = types.get(v.type)
 			if socket:
-				self.inputs.new(socket, k.title())
+				self.inputs.new(socket, k)
 			else:
 				print("Unrecognized type for system property:", k)
 
@@ -139,7 +139,7 @@ def write_property(node, prop):
 		return
 
 	return {
-		"name": prop.lower().replace(" ", "_"),
+		"name": prop,
 		"location": node.location[:],
 		"generator": write_generator(ns.links[0].from_node),
 	}
