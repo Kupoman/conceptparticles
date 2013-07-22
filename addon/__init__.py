@@ -36,20 +36,6 @@ class ParticleTreeNode:
 # ------- #
 
 
-class NodeSocketParticleProperties(NodeSocket):
-	'''Socket for particle properties'''
-	bl_label = 'Particle Properties'
-
-	def draw(self, context, layout, node, text):
-		layout.label(text)
-
-	def draw_color(self, context, node):
-		if self.is_linked:
-			return (0.0, 1.0, 0.0, 1.0)
-		else:
-			return (1.0, 0.0, 0.0, 1.0)
-
-
 # ------------ #
 # System Nodes #
 # ------------ #
@@ -61,29 +47,13 @@ class SystemNode(Node, ParticleTreeNode):
 	bl_icon = 'NODETREE'
 
 	def init(self, context):
-		for i in SYSTEM_PROPERTIES:
+		for i in SYSTEM_PROPERTIES+PARTICLE_PROPERTIES:
 			if i['type'] == 'VECTOR':
 				self.inputs.new('NodeSocketVector', i['name'].title())
 			elif i['type'] == 'COLOR':
 				self.inputs.new('NodeSocketColor', i['name'].title())
 			else:
 				print("Unrecognized type for system property:", i['name'])
-		self.inputs.new('NodeSocketParticleProperties', "Particle Properties")
-
-
-class ParticlePropertiesNode(Node, ParticleTreeNode):
-	'''Node for per particle properties'''
-	bl_label = 'Particle Properties'
-
-	def init(self, context):
-		for i in PARTICLE_PROPERTIES:
-			if i['type'] == 'VECTOR':
-				self.inputs.new('NodeSocketVector', i['name'].title())
-			elif i['type'] == 'COLOR':
-				self.inputs.new('NodeSocketColor', i['name'].title())
-			else:
-				print("Unrecognized type for system property:", i['name'])
-		self.outputs.new('NodeSocketParticleProperties', "System")
 
 
 # --------------- #
@@ -102,8 +72,7 @@ class ParticleNodeCategory(NodeCategory):
 
 node_categories = [
 	ParticleNodeCategory("SYSTEM", "System Nodes", items=[
-		NodeItem("SystemNode"),
-		NodeItem("ParticlePropertiesNode"),
+		NodeItem("SystemNode")
 	])
 ]
 
@@ -140,22 +109,15 @@ def write_node_tree(context, filepath):
 	systems_out = []
 
 	for system in systems:
-		ns = system.inputs.get("Particle Properties")
-		if not ns.is_linked:
-			print("Found system with no particle properties, skipping")
-			continue
-
 		sys_props = []
 		for i in SYSTEM_PROPERTIES:
 			prop = write_property(system, i['name'])
 			if prop:
 				sys_props.append(prop)
 
-		part_props_node = ns.links[0].from_node
-
 		part_props = []
 		for i in PARTICLE_PROPERTIES:
-			prop = write_property(part_props_node, i['name'])
+			prop = write_property(system, i['name'])
 			if prop:
 				part_props.append(prop)
 
@@ -218,14 +180,12 @@ class ParticleNodesPanel(bpy.types.Panel):
 
 
 nodes = [
-	SystemNode,
-	ParticlePropertiesNode,
+	SystemNode
 ]
 
 
 def register():
 	bpy.utils.register_class(ParticleTree)
-	bpy.utils.register_class(NodeSocketParticleProperties)
 
 	generated_nodes = []
 
@@ -265,7 +225,6 @@ def register():
 
 def unregister():
 	bpy.utils.unregister_class(ParticleTree)
-	bpy.utils.unregister_class(NodeSocketParticleProperties)
 
 	for i in nodes:
 		bpy.utils.unregister_class(i)
