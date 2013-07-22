@@ -1,11 +1,15 @@
 from .linear import Linear
 from .mix import Mix3, Mix4
+from .constant import Constant, Constant3, Constant4
 
 
 GENERATORS = {
 				"LINEAR",
 				"MIX3",
 				"MIX4",
+				"CONSTANT",
+				"CONSTANT3",
+				"CONSTANT4",
 				}
 
 def get_generator(name, args):
