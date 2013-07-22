@@ -7,7 +7,7 @@ import PIL.Image as pil
 
 
 from .particle import GPUPARTICLE, CPUPARTICLE
-from .shaders import getProgram
+from .shaders import get_program
 from .property import Property
 from .generators import get_generator
 
@@ -30,8 +30,6 @@ class System:
 		self._buffer_id = glGenBuffers(1)
 		self._texture_id = glGenTextures(1)
 		self._uniform_loc = {}
-		
-		print((GPUPARTICLE * 2)()[0]._fields_)
 
 		glBindBuffer(GL_ARRAY_BUFFER, self._buffer_id)
 		glBufferData(GL_ARRAY_BUFFER, self._capacity*ctypes.sizeof(GPUPARTICLE),
@@ -53,7 +51,7 @@ class System:
 		glBindTexture(GL_TEXTURE_2D, 0)
 		
 		self._uniform_loc['texture'] = \
-			glGetUniformLocation(getProgram(), b"texture")
+			glGetUniformLocation(get_program(), b"texture")
 
 		self._init_props()
 
@@ -64,30 +62,29 @@ class System:
 			get_generator("MIX3", {"n3":"LINEAR"})
 		self._particle_properties["color"] = \
 			Property("color", "COLOR", (1.0, 1.0, 1.0, 1.0))
-			
+
 	def _add_particle(self):
 		self._size += 1
 		particle = self._particles[self._size-1]
 		data = self._particle_data[self._size-1]
-		
+
 		data.life = 60
 		data.time = 0
-		
+
 	def _remove_particle(self, index):
 		self._size -= 1
-		
+
 		tmp_part = GPUPARTICLE()
 		tmp_data = CPUPARTICLE()
-		
+
 		_struct_copy(tmp_part, self._particles[self._size])
 		_struct_copy(tmp_data, self._particle_data[self._size])
-		
+
 		_struct_copy(self._particles[self._size], self._particles[index])
 		_struct_copy(self._particle_data[self._size], self._particle_data[index])
-		
+
 		_struct_copy(self._particles[index], tmp_part)
 		_struct_copy(self._particle_data[index], tmp_data)
-		
 
 	def update(self):
 		self._add_particle()
@@ -96,7 +93,7 @@ class System:
 			particle = self._particles[i]
 			data = self._particle_data[i]
 			data.time += 1
-			
+
 			if data.time >= data.life:
 				rem_list.append(i)
 
@@ -121,8 +118,8 @@ class System:
 
 	def draw(self):
 		self.update()
-		
-		glUseProgram(getProgram())
+
+		glUseProgram(get_program())
 
 		glPointSize(5)
 		glEnable(GL_TEXTURE_2D)

@@ -1,7 +1,7 @@
 from OpenGL.GL import *
 
 
-from .shaders import getProgram
+from .shaders import get_program
 
 
 TYPES = set(("VECTOR", "COLOR"))
@@ -16,7 +16,7 @@ class Property:
 		if type not in TYPES:
 			raise ValueError("Type not in: " + str(TYPES))
 		self._type = type
-		self._bind_location = glGetUniformLocation(getProgram(), name.encode())
+		self._bind_location = glGetUniformLocation(get_program(), name.encode())
 
 	def get_value(self, time):
 		if not self.generator:

@@ -11,7 +11,7 @@ _vertex = ("vertex.glsl", GL_VERTEX_SHADER)
 _shaders = (_fragment, _vertex)
 
 
-def getProgram():
+def get_program():
 	global _program
 
 	if _program != -1:
