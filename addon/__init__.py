@@ -121,9 +121,15 @@ node_categories = [
 
 
 def write_generator(node):
-	return {
-		"type": node.bl_label.upper(),
-	}
+	d = {"type": node.bl_label.upper()}
+
+	for prop in node.props:
+		d[prop] = getattr(node, prop)
+
+	for inp_sock in [i for i in node.inputs if i.is_linked]:
+		d[inp_sock.name.lower().replace(" ", "_")] = write_generator(inp_sock.links[0].from_node)
+
+	return d
 
 
 def write_property(node, prop):
@@ -133,7 +139,7 @@ def write_property(node, prop):
 		return
 
 	return {
-		"name": prop,
+		"name": prop.lower().replace(" ", "_"),
 		"location": node.location[:],
 		"generator": write_generator(ns.links[0].from_node),
 	}
@@ -266,6 +272,7 @@ def register():
 
 			exec(db_str)
 			d["draw_buttons"] = locals()['draw_buttons']
+		d["props"] = props
 		
 		node = type(cls.__name__+"Node", (Node, ParticleTreeNode), d)
 		nodes.append(node)
