@@ -1,3 +1,6 @@
+import sys
+
+
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
@@ -64,7 +67,8 @@ def display():
 	draw_background()
 	draw_axis()
 
-	Global.system.draw(Global.mvmat, Global.pmat)
+	if Global.system:
+		Global.system.draw(Global.mvmat, Global.pmat)
 
 	glutSwapBuffers()
 
@@ -90,7 +94,11 @@ if __name__ == '__main__':
 	glutInitWindowSize(WIDTH,HEIGHT)
 	glutCreateWindow(b"Particle Viewer")
 	
-	Global.system = System.load("effect.json")
+	if len(sys.argv) > 1:
+		filename = sys.argv[1]
+		Global.system = System.load(filename)
+	else:
+		print("No filename given")
 
 	glutReshapeFunc(reshape)
 	glutDisplayFunc(display)
