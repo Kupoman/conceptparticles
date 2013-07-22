@@ -1,7 +1,7 @@
 from ctypes import *
 
 
-class RPARTICLE(Structure):
+class GPUPARTICLE(Structure):
 	_fields_ = [
 					("x", c_float),
 					("y", c_float),
@@ -11,4 +11,11 @@ class RPARTICLE(Structure):
 					("b", c_float),
 					("a", c_float),
 					("pad", c_float)
+				]
+				
+
+class CPUPARTICLE(Structure):
+	_fields_ = [
+					("life", c_int),
+					("time", c_int),
 				]
