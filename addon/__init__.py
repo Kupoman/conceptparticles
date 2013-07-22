@@ -128,6 +128,8 @@ def write_generator(node):
 
 	for prop in node.props:
 		d[prop] = getattr(node, prop)
+		if not isinstance(d[prop], float):
+			d[prop] = d[prop][:]
 
 	for inp_sock in [i for i in node.inputs if i.is_linked]:
 		d[inp_sock.name.lower().replace(" ", "_")] = write_generator(inp_sock.links[0].from_node)
