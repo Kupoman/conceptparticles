@@ -1,32 +1,18 @@
-from OpenGL.GL import *
-
-
-from .shaders import get_program
-
-
-TYPES = set(("VECTOR", "COLOR"))
+TYPES = {"VECTOR", "COLOR", "SCALAR"}
 
 
 class Property:
-	def __init__(self, name, type, default, generator=None):
-		self.name = name
+	_slots_ = ["type", "generator", "default"]
+
+	def __init__(self, type="FLOAT", default=0, generator=None):
 		self.generator = generator
 		self.default = default
 
 		if type not in TYPES:
 			raise ValueError("Type not in: " + str(TYPES))
-		self._type = type
-		self._bind_location = glGetUniformLocation(get_program(), name.encode())
+		self.type = type
 
 	def get_value(self, time):
 		if not self.generator:
 			return self.default
 		return self.generator.get_value(time)
-
-	def bind_value(self, time):
-		value = self.generator.get_value(time)
-		if self._type == "VECTOR":
-			glUniform3f(self._bind_location, value[0], value[1], value[2])
-		if self._type == "COLOR":
-			glUniform4f(self._bind_location,
-						value[0], value[1], value[2], value[3])

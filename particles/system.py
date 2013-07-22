@@ -1,6 +1,7 @@
 import random
 import ctypes
 import json
+import copy
 
 
 from OpenGL.GL import *
@@ -22,8 +23,7 @@ def _struct_copy(dst, src):
 
 class System:
 	def __init__(self):
-		self._system_properties = {}
-		self._particle_properties = {}
+		self._properties = {}
 		self._texture_path = "sprites/stars_4.png"
 		self._capacity = 0
 		self._particles = []
@@ -56,6 +56,7 @@ class System:
 			glGetUniformLocation(get_program(), b"model_view_mat")
 		self._uniform_loc['projection_mat'] = \
 			glGetUniformLocation(get_program(), b"projection_mat")
+
 		self._attrib_loc['position'] = \
 			glGetAttribLocation(get_program(), b"position_in")
 		self._attrib_loc['color'] = \
@@ -64,16 +65,10 @@ class System:
 		self._init_props()
 
 	def _init_props(self):
-		for prop in SYSTEM_PROPERTIES:
-			self._system_properties[prop['name']] = Property(**prop)
-		for prop in PARTICLE_PROPERTIES:
-			self._particle_properties[prop['name']] = Property(**prop)
-		# self._particle_properties["position"] = \
-			# Property("position", "VECTOR", (0, 0, 0))
-		self._particle_properties["position"].generator = \
+		self._properties = copy.deepcopy(PROPERTIES)
+
+		self._properties["Position"].generator = \
 			get_generator("MIX3", {"n3":"LINEAR"})
-		# self._particle_properties["color"] = \
-			# Property("color", "COLOR", (1.0, 1.0, 1.0, 1.0))
 
 	def _load_props(self, json):
 		pass
@@ -149,12 +144,12 @@ class System:
 			if data.time >= data.life:
 				rem_list.append(i)
 
-			value = self._particle_properties['position'].get_value(data.time)
+			value = self._properties['Position'].get_value(data.time)
 			particle.x = value[0]
 			particle.y = value[1]
 			particle.z = value[2]
 
-			value = self._particle_properties['color'].get_value(0)
+			value = self._properties['Color'].get_value(0)
 			particle.r = value[0]
 			particle.g = value[1]
 			particle.b = value[2]

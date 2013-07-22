@@ -1,8 +1,10 @@
-SYSTEM_PROPERTIES = (
-	)
+from collections import OrderedDict
 
 
-PARTICLE_PROPERTIES = (
-		{"name" : "position", "type" : "VECTOR", "default" : (0, 0, 0)},
-		{"name" : "color", "type" : "COLOR", "default" : (1.0, 1.0, 1.0, 1.0)},
-	)
+from .property import Property
+
+
+PROPERTIES = OrderedDict([
+		("Position", Property("VECTOR", (0, 0, 0))),
+		("Color", Property("COLOR", (1.0, 1.0, 1.0, 1.0))),
+	])
