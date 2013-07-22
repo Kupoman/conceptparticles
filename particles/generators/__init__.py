@@ -5,6 +5,7 @@ from .mix import Mix3
 GENERATORS = {
 				"LINEAR",
 				"MIX3",
+				"MIX4",
 				}
 
 def get_generator(name, args):
