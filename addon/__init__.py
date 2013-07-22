@@ -13,7 +13,7 @@ bl_info = {
 
 import bpy
 from bpy_types import NodeTree, Node, NodeSocket
-from bpy_extras.io_utils import ExportHelper
+from bpy_extras.io_utils import ExportHelper, ImportHelper
 import particles.generators
 from particles.defaults import PROPERTIES
 import json
@@ -197,6 +197,54 @@ class ExportNodeTree(bpy.types.Operator, ExportHelper):
 		return {'FINISHED'}
 
 
+def read_generator(nt, src, gen, name, location):
+	pnode = nt.nodes.new(gen['type'].title()+"Node")
+	pnode.location = location
+
+	nt.links.new(pnode.outputs['Value'], src.inputs[name])
+
+	del gen['type']
+	for k,v in gen.items():
+		if hasattr(pnode, k):
+			setattr(pnode, k, v)
+		else:
+			read_generator(nt, pnode, v, k.title().replace('_', ' '), gen.get('location', [0, 0]))
+
+
+def read_node_tree(context, filepath):
+	with open(filepath, "r") as f:
+		inp = json.load(f)
+
+	bpy.ops.node.new_node_tree(type="ParticleTree", name=inp['name'])
+
+	nt = context.space_data.node_tree
+	#context.space_data.edit_tree = nt
+
+	for system in inp['systems']:
+		snode = nt.nodes.new("SystemNode")
+
+		for prop in system['properties']:
+			read_generator(nt, snode, prop['generator'], prop['name'], prop.get('location', [0, 0]))
+
+	return True
+
+
+class ImportNodeTree(bpy.types.Operator, ImportHelper):
+	'''Load a particle node tree from a file'''
+	bl_idname = "particles.import_tree"
+	bl_label = "Import Particle Tree"
+
+	filename_ext = ".fx"
+	filter_glob = bpy.props.StringProperty(
+			default="*.fx",
+			options={'HIDDEN'},
+		)
+
+	def execute(self, context):
+		if read_node_tree(context, self.filepath):
+			return {'FINISHED'}
+		return {'CANCELED'}
+
 # ----- #
 # Panel #
 # ----- #
@@ -216,6 +264,7 @@ class ParticleNodesPanel(bpy.types.Panel):
 		layout = self.layout
 
 		layout.operator(ExportNodeTree.bl_idname)
+		layout.operator(ImportNodeTree.bl_idname)
 
 # ------------ #
 # Registration #
@@ -297,6 +346,7 @@ def register():
 		nodeitems_utils.register_node_categories("PARTICLE_NODES", node_categories)
 
 	bpy.utils.register_class(ExportNodeTree)
+	bpy.utils.register_class(ImportNodeTree)
 
 	bpy.utils.register_class(ParticleNodesPanel)
 
@@ -310,6 +360,7 @@ def unregister():
 	nodeitems_utils.unregister_node_categories("PARTICLE_NODES")
 
 	bpy.utils.unregister_class(ExportNodeTree)
+	bpy.utils.unregister_class(ImportNodeTree)
 
 	bpy.utils.unregister_class(ParticleNodesPanel)
 
