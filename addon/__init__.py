@@ -145,7 +145,7 @@ def write_property(node, prop):
 	}
 
 
-def write_node_tree(context, filepath):
+def write_node_tree(context, filepath, use_pretty_print):
 	nt = context.space_data.node_tree
 
 	systems = [node for node in nt.nodes if node.bl_label == 'System']
@@ -172,7 +172,7 @@ def write_node_tree(context, filepath):
 		}
 
 	with open(filepath, "w") as f:
-		json.dump(out, f, indent=4)
+		json.dump(out, f, indent=4 if use_pretty_print else None)
 
 
 class ExportNodeTree(bpy.types.Operator, ExportHelper):
@@ -186,8 +186,14 @@ class ExportNodeTree(bpy.types.Operator, ExportHelper):
 			options={'HIDDEN'},
 		)
 
+	use_pretty_print = bpy.props.BoolProperty(
+			name="Use Pretty Print",
+			description="Add nice formatting to the output file",
+			default=True,
+		)
+
 	def execute(self, context):
-		write_node_tree(context, self.filepath)
+		write_node_tree(context, self.filepath, self.use_pretty_print)
 		return {'FINISHED'}
 
 
