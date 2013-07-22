@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from .common import Generator
 
 class Mix3(Generator):
