@@ -1,7 +1,13 @@
 from .common import Generator
 
 class Mix3(Generator):
-	__slots__ = ["gen1", "gen2", "gen3"]
+	type_map =	{
+					"gen1" : "GENERATOR",
+					"gen2" : "GENERATOR",
+					"gen3" : "GENERATOR",
+				}
+				
+	__slots__ = type_map.keys()
 	
 	def __init__(self, factory, n1="", d1={}, n2="", d2={}, n3="", d3={}):
 		self.gen1 = self.gen2 = self.gen3 = None
