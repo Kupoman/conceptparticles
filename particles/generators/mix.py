@@ -1,4 +1,6 @@
-class Mix3:
+from .common import Generator
+
+class Mix3(Generator):
 	__slots__ = ["gen1", "gen2", "gen3"]
 	
 	def __init__(self, factory, n1="", d1={}, n2="", d2={}, n3="", d3={}):

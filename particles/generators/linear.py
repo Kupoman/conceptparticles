@@ -1,4 +1,6 @@
-class Linear:
+from .common import Generator
+
+class Linear(Generator):
 	__slots__ = ["m", "b"]
 	
 	def __init__(self, m=0.05, b=0.0):
