@@ -13,6 +13,7 @@ bl_info = {
 
 import bpy
 from bpy_types import NodeTree, Node, NodeSocket
+from bpy_extras.io_utils import ExportHelper
 import particles.generators
 
 
@@ -97,6 +98,52 @@ node_categories = [
 ]
 
 
+# --------- #
+# Operators #
+# --------- #
+
+
+def write_node_tree(context, filepath):
+	with open(filepath, 'w') as f:
+		f.write("XXX TODO")
+
+
+class ExportNodeTree(bpy.types.Operator, ExportHelper):
+	'''Save the particle node tree to a file'''
+	bl_idname = "particles.export_tree"
+	bl_label = "Export Particle Tree"
+
+	filename_ext = ".fx"
+	filter_glob = bpy.props.StringProperty(
+			default="*.fx",
+			options={'HIDDEN'},
+		)
+
+	def execute(self, context):
+		write_node_tree(context, self.filepath)
+		return {'FINISHED'}
+
+
+# ----- #
+# Panel #
+# ----- #
+
+
+class ParticleNodesPanel(bpy.types.Panel):
+	bl_label = 'Particles'
+	bl_idname = 'NODES_PT_particle_operators'
+	bl_space_type = 'NODE_EDITOR'
+	bl_region_type = 'UI'
+
+	@classmethod
+	def poll(cls, context):
+		return context.space_data.tree_type == 'ParticleTree'
+
+	def draw(self, context):
+		layout = self.layout
+
+		layout.operator(ExportNodeTree.bl_idname)
+
 # ------------ #
 # Registration #
 # ------------ #
@@ -143,6 +190,9 @@ def register():
 		nodeitems_utils.unregister_node_categories("PARTICLE_NODES")
 		nodeitems_utils.register_node_categories("PARTICLE_NODES", node_categories)
 
+	bpy.utils.register_class(ExportNodeTree)
+
+	bpy.utils.register_class(ParticleNodesPanel)
 
 
 def unregister():
@@ -153,6 +203,10 @@ def unregister():
 		bpy.utils.unregister_class(i)
 
 	nodeitems_utils.unregister_node_categories("PARTICLE_NODES")
+
+	bpy.utils.unregister_class(ExportNodeTree)
+
+	bpy.utils.unregister_class(ParticleNodesPanel)
 
 
 if __name__ == "__main__":
