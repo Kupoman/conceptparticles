@@ -1,5 +1,6 @@
 import random
 import ctypes
+import json
 
 
 from OpenGL.GL import *
@@ -10,6 +11,7 @@ from .particle import GPUPARTICLE, CPUPARTICLE
 from .shaders import get_program
 from .property import Property
 from .generators import get_generator
+from .defaults import *
 
 
 def _struct_copy(dst, src):
@@ -62,12 +64,19 @@ class System:
 		self._init_props()
 
 	def _init_props(self):
-		self._particle_properties["position"] = \
-			Property("position", "VECTOR", (0, 0, 0))
+		for prop in SYSTEM_PROPERTIES:
+			self._system_properties[prop['name']] = Property(**prop)
+		for prop in PARTICLE_PROPERTIES:
+			self._particle_properties[prop['name']] = Property(**prop)
+		# self._particle_properties["position"] = \
+			# Property("position", "VECTOR", (0, 0, 0))
 		self._particle_properties["position"].generator = \
 			get_generator("MIX3", {"n3":"LINEAR"})
-		self._particle_properties["color"] = \
-			Property("color", "COLOR", (1.0, 1.0, 1.0, 1.0))
+		# self._particle_properties["color"] = \
+			# Property("color", "COLOR", (1.0, 1.0, 1.0, 1.0))
+
+	def _load_props(self, json):
+		pass
 
 	def _add_particle(self):
 		if self._size >= self._capacity:
@@ -113,6 +122,21 @@ class System:
 		glBufferData(GL_ARRAY_BUFFER, self._capacity*ctypes.sizeof(GPUPARTICLE),
 						None, GL_DYNAMIC_DRAW)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+	@classmethod
+	def load(cls, filename):
+		with open(filename) as fin:
+			dict = json.load(fin)
+		system = cls()
+		system._load_props(dict["systems"][0])
+		return system
+		
+	@classmethod
+	def loads(cls, string):
+		dict = json.loads(string)
+		system = cls()
+		system._load_props(dict["systems"][0])
+		return system
 
 	def update(self):
 		self._add_particle()

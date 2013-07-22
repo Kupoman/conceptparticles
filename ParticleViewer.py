@@ -90,7 +90,7 @@ if __name__ == '__main__':
 	glutInitWindowSize(WIDTH,HEIGHT)
 	glutCreateWindow(b"Particle Viewer")
 	
-	Global.system = System()
+	Global.system = System.load("effect.json")
 
 	glutReshapeFunc(reshape)
 	glutDisplayFunc(display)
