@@ -76,6 +76,8 @@ class System:
 				gen = property['generator']
 				gen_type = gen['type']
 				del gen['type']
+				if 'location' in gen:
+					del gen['location']
 				self._properties[name].generator = get_generator(gen_type, gen)
 			else:
 				print("Invalid property:", name)

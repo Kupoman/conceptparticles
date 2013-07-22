@@ -20,6 +20,8 @@ class Mix3(Generator):
 		for attr, gen in dict.items():
 			gen_type = gen['type']
 			del gen['type']
+			if 'location' in gen:
+				del gen['location']
 			setattr(self, attr, factory(gen_type, gen))
 
 	def get_value(self, x):
@@ -51,6 +53,8 @@ class Mix4(Generator):
 		for attr, gen in dict.items():
 			gen_type = gen['type']
 			del gen['type']
+			if 'location' in gen:
+				del gen['location']
 			setattr(self, attr, factory(gen_type, gen))
 
 	def get_value(self, x):
