@@ -2,10 +2,10 @@ from .linear import Linear
 from .mix import Mix3
 
 
-GENERATORS = set((
+GENERATORS = {
 				"LINEAR",
 				"MIX3",
-				))
+				}
 
 def get_generator(name, args):
 	if name in GENERATORS:
