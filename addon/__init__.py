@@ -15,7 +15,7 @@ import bpy
 from bpy_types import NodeTree, Node, NodeSocket
 from bpy_extras.io_utils import ExportHelper
 import particles.generators
-from particles.defaults import SYSTEM_PROPERTIES, PARTICLE_PROPERTIES
+from particles.defaults import PROPERTIES
 import json
 
 
@@ -80,15 +80,18 @@ class SystemNode(Node, ParticleTreeNode):
 	bl_icon = 'NODETREE'
 
 	def init(self, context):
-		for i in SYSTEM_PROPERTIES+PARTICLE_PROPERTIES:
-			if i['type'] == 'SCALAR':
-				self.inputs.new('NodeSocketGeneratorScalar', i['name'].title())
-			elif i['type'] == 'VECTOR':
-				self.inputs.new('NodeSocketGeneratorVector', i['name'].title())
-			elif i['type'] == 'COLOR':
-				self.inputs.new('NodeSocketGeneratorColor', i['name'].title())
+		types = {
+			'SCALAR': 'NodeSocketGeneratorScalar',
+			'VECTOR': 'NodeSocketGeneratorVector',
+			'COLOR': 'NodeSocketGeneratorColor',
+		}
+
+		for k,v in PROPERTIES.items():
+			socket = types.get(v.type)
+			if socket:
+				self.inputs.new(socket, k.title())
 			else:
-				print("Unrecognized type for system property:", i['name'])
+				print("Unrecognized type for system property:", k)
 
 
 # --------------- #
@@ -124,7 +127,7 @@ def write_generator(node):
 
 
 def write_property(node, prop):
-	ns = node.inputs.get(prop.title())
+	ns = node.inputs.get(prop)
 
 	if not ns.is_linked:
 		return
@@ -144,21 +147,14 @@ def write_node_tree(context, filepath):
 	systems_out = []
 
 	for system in systems:
-		sys_props = []
-		for i in SYSTEM_PROPERTIES:
-			prop = write_property(system, i['name'])
+		props = []
+		for i in PROPERTIES:
+			prop = write_property(system, i)
 			if prop:
-				sys_props.append(prop)
-
-		part_props = []
-		for i in PARTICLE_PROPERTIES:
-			prop = write_property(system, i['name'])
-			if prop:
-				part_props.append(prop)
+				props.append(prop)
 
 		sysd = {
-			"particle_properties": part_props,
-			"system_properties": sys_props,
+			"properties": props,
 		}
 
 		systems_out.append(sysd)
