@@ -121,7 +121,10 @@ node_categories = [
 
 
 def write_generator(node):
-	d = {"type": node.bl_label.upper()}
+	d = {
+		"type": node.bl_label.upper(),
+		"location": node.location[:],
+	}
 
 	for prop in node.props:
 		d[prop] = getattr(node, prop)
@@ -138,10 +141,11 @@ def write_property(node, prop):
 	if not ns.is_linked:
 		return
 
+	prop_node = ns.links[0].from_node
+
 	return {
 		"name": prop,
-		"location": node.location[:],
-		"generator": write_generator(ns.links[0].from_node),
+		"generator": write_generator(prop_node),
 	}
 
 
@@ -161,6 +165,7 @@ def write_node_tree(context, filepath, use_pretty_print):
 
 		sysd = {
 			"properties": props,
+			"location": system.location[:]
 		}
 
 		systems_out.append(sysd)
@@ -197,18 +202,20 @@ class ExportNodeTree(bpy.types.Operator, ExportHelper):
 		return {'FINISHED'}
 
 
-def read_generator(nt, src, gen, name, location):
+def read_generator(nt, src, gen, name):
 	pnode = nt.nodes.new(gen['type'].title()+"Node")
-	pnode.location = location
+	pnode.location = gen['location']
 
 	nt.links.new(pnode.outputs['Value'], src.inputs[name])
 
 	del gen['type']
+	del gen['location']
+
 	for k,v in gen.items():
 		if hasattr(pnode, k):
 			setattr(pnode, k, v)
 		else:
-			read_generator(nt, pnode, v, k.title().replace('_', ' '), gen.get('location', [0, 0]))
+			read_generator(nt, pnode, v, k.title().replace('_', ' '))
 
 
 def read_node_tree(context, filepath):
@@ -222,9 +229,10 @@ def read_node_tree(context, filepath):
 
 	for system in inp['systems']:
 		snode = nt.nodes.new("SystemNode")
+		snode.location = system['location']
 
 		for prop in system['properties']:
-			read_generator(nt, snode, prop['generator'], prop['name'], prop.get('location', [0, 0]))
+			read_generator(nt, snode, prop['generator'], prop['name'])
 
 	return True
 
