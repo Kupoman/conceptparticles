@@ -13,7 +13,7 @@ def get_generator(name, args):
 		class_name = name[0] + name[1:].lower()
 		gen = globals()[class_name]
 		if class_name.startswith("Mix"):
-			gen = gen(get_generator, **args)
+			gen = gen(get_generator, args)
 		else:
 			gen = gen(**args)
 			

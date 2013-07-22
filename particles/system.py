@@ -68,11 +68,18 @@ class System:
 	def _init_props(self):
 		self._properties = copy.deepcopy(PROPERTIES)
 
-		self._properties["Position"].generator = \
-			get_generator("MIX3", {"n3":"LINEAR"})
-
 	def _load_props(self, json):
-		pass
+		for property in json['properties']:
+			name = property['name']
+			if name in self._properties:
+				gen = property['generator']
+				gen_type = gen['type']
+				del gen['type']
+				self._properties[name].generator = get_generator(gen_type, gen)
+			else:
+				print("Invalid property:", name)
+
+		print(self._properties['Position'].get_value(2))
 
 	def _add_particle(self):
 		if self._size >= self._capacity:
@@ -155,7 +162,7 @@ class System:
 			particle.y = value[1]
 			particle.z = value[2]
 
-			value = self._properties['Color'].get_value(0)
+			value = self._properties['Color'].get_value(data.time)
 			particle.r = value[0]
 			particle.g = value[1]
 			particle.b = value[2]

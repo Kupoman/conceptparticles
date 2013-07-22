@@ -8,11 +8,11 @@
                         80.36454010009766
                     ], 
                     "generator": {
-                        "intercept": 0.0, 
-                        "slope": 0.009999999776482582, 
+                        "intercept": 0.1, 
+                        "slope": 0.1, 
                         "type": "LINEAR"
                     }, 
-                    "name": "emit_rate"
+                    "name": "Emit Rate"
                 }, 
                 {
                     "location": [
@@ -37,7 +37,7 @@
                         }, 
                         "type": "MIX3"
                     }, 
-                    "name": "position"
+                    "name": "Position"
                 }, 
                 {
                     "location": [
@@ -67,7 +67,7 @@
                             "type": "LINEAR"
                         }
                     }, 
-                    "name": "color"
+                    "name": "Color"
                 }
             ]
         }
