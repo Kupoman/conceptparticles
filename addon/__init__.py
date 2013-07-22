@@ -15,6 +15,7 @@ import bpy
 from bpy_types import NodeTree, Node, NodeSocket
 from bpy_extras.io_utils import ExportHelper
 import particles.generators
+from particles.defaults import SYSTEM_PROPERTIES, PARTICLE_PROPERTIES
 import json
 
 
@@ -60,12 +61,14 @@ class SystemNode(Node, ParticleTreeNode):
 	bl_icon = 'NODETREE'
 
 	def init(self, context):
-		self.inputs.new('NodeSocketVectorTranslation', "Position")
+		for i in SYSTEM_PROPERTIES:
+			if i['type'] == 'VECTOR':
+				self.inputs.new('NodeSocketVector', i['name'].title())
+			elif i['type'] == 'COLOR':
+				self.inputs.new('NodeSocketColor', i['name'].title())
+			else:
+				print("Unrecognized type for system property:", i['name'])
 		self.inputs.new('NodeSocketParticleProperties', "Particle Properties")
-
-	def draw_buttons(self, context, layout):
-		layout.label("System Properties")
-		layout.label("Particle Properties")
 
 
 class ParticlePropertiesNode(Node, ParticleTreeNode):
@@ -73,7 +76,13 @@ class ParticlePropertiesNode(Node, ParticleTreeNode):
 	bl_label = 'Particle Properties'
 
 	def init(self, context):
-		self.inputs.new('NodeSocketColor', "Color")
+		for i in PARTICLE_PROPERTIES:
+			if i['type'] == 'VECTOR':
+				self.inputs.new('NodeSocketVector', i['name'].title())
+			elif i['type'] == 'COLOR':
+				self.inputs.new('NodeSocketColor', i['name'].title())
+			else:
+				print("Unrecognized type for system property:", i['name'])
 		self.outputs.new('NodeSocketParticleProperties', "System")
 
 
@@ -136,15 +145,23 @@ def write_node_tree(context, filepath):
 			print("Found system with no particle properties, skipping")
 			continue
 
-		part_props = ns.links[0].from_node
+		sys_props = []
+		for i in SYSTEM_PROPERTIES:
+			prop = write_property(system, i['name'])
+			if prop:
+				sys_props.append(prop)
+
+		part_props_node = ns.links[0].from_node
+
+		part_props = []
+		for i in PARTICLE_PROPERTIES:
+			prop = write_property(part_props_node, i['name'])
+			if prop:
+				part_props.append(prop)
 
 		sysd = {
-			"particle_properties": [
-					write_property(part_props, "color"),
-				],
-			"system_properties": [
-					write_property(system, "position"),
-				],
+			"particle_properties": part_props,
+			"system_properties": sys_props,
 		}
 
 		systems_out.append(sysd)
