@@ -5,7 +5,6 @@ import copy
 
 
 from OpenGL.GL import *
-import PIL.Image as pil
 
 
 from .particle import GPUPARTICLE, CPUPARTICLE
@@ -13,6 +12,28 @@ from .shaders import get_program
 from .property import Property
 from .generators import get_generator
 from .defaults import *
+
+
+try:
+	import bpy
+	import bge
+	def _load_image(path):
+		path = bge.logic.expandPath("//../"+path)
+		# im = bge.texture.ImageFFmpeg(path)
+		im = bpy.data.images.load(path)
+		data = [int(255*val) for val in im.pixels[:]]
+		return data, im.size[0], im.size[1]
+except ImportError:
+	import PIL.Image as pil
+	def _load_image(path):
+		im = pil.open(path)
+		try:
+			imdata = im.tostring("raw", "RGBA", 0, -1)
+		except (SystemError):
+			imdata = im.tostring("raw", "RGBX", 0, -1)
+			
+		return imdata, im.size[0], im.size[1]
+		
 
 
 def _struct_copy(dst, src):
@@ -37,18 +58,14 @@ class System:
 		self._time = 0
 
 		self._expand(1000)
-
-		im = pil.open(self._texture_path)
-		try:
-			imdata = im.tostring("raw", "RGBA", 0, -1)
-		except (SystemError):
-			imdata = im.tostring("raw", "RGBX", 0, -1)
+		
+		imdata, imx, imy = _load_image(self._texture_path)
 
 		glBindTexture(GL_TEXTURE_2D, self._texture_id)
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, im.size[0], im.size[1],
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imx, imy,
 						0, GL_RGBA, GL_UNSIGNED_BYTE, imdata)
 		glBindTexture(GL_TEXTURE_2D, 0)
 		
@@ -186,6 +203,8 @@ class System:
 		self.update()
 
 		glUseProgram(get_program())
+		
+		glDisable(GL_DEPTH_TEST)
 
 		glEnable(GL_TEXTURE_2D)
 		glEnable(GL_POINT_SPRITE)
@@ -213,6 +232,10 @@ class System:
 								ctypes.c_void_p(GPUPARTICLE.r.offset))
 
 		glDrawArrays(GL_POINTS, 0, self._size)
+		
+		glDisableVertexAttribArray(0)
+		glDisableVertexAttribArray(1)
 
 		glUseProgram(0)
 		glBindTexture(GL_TEXTURE_2D, 0)
+		glBindBuffer(GL_ARRAY_BUFFER, 0)
