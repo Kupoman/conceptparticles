@@ -12,7 +12,7 @@ bl_info = {
 
 
 import bpy
-from bpy_types import NodeTree, Node, NodeSocket
+from bpy.types import NodeTree, Node, NodeSocket
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 import particles.generators
 from particles.defaults import PROPERTIES
