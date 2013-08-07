@@ -126,10 +126,14 @@ def write_generator(node):
 		"location": node.location[:],
 	}
 
+	args = {}
+
 	for prop in node.props:
-		d[prop] = getattr(node, prop)
-		if not isinstance(d[prop], float):
-			d[prop] = d[prop][:]
+		args[prop] = getattr(node, prop)
+		if not isinstance(args[prop], float):
+			args[prop] = args[prop][:]
+
+	d['arguments'] = args
 
 	for inp_sock in [i for i in node.inputs if i.is_linked]:
 		d[inp_sock.name.lower().replace(" ", "_")] = write_generator(inp_sock.links[0].from_node)
@@ -210,10 +214,7 @@ def read_generator(nt, src, gen, name):
 
 	nt.links.new(pnode.outputs['Value'], src.inputs[name])
 
-	del gen['type']
-	del gen['location']
-
-	for k,v in gen.items():
+	for k,v in gen['arguments'].items():
 		if hasattr(pnode, k):
 			setattr(pnode, k, v)
 		else:
